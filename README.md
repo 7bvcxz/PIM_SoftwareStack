@@ -9,7 +9,7 @@ Contact me on [iESLAB GyungMo Kim](7bvcxz@gmail.com) for more information. This 
 
 ## Installing PIM Software Stack
 * The implementation was compiled and tested with PyTorch (?). I need to check #TODO#
-* Wait a minute
+* [Wait a minute](https://www.youtube.com/watch?v=6gLngFssI0s&ab_channel=IoMemoTuRidi)
 
 ``` bash
 cd tmp
