@@ -8,8 +8,16 @@ git clone https://github.com/7bvcxz/PIM_SoftwareStack
 cd PIM_SoftwareStack
 ```
 
+## 간단 사용 설명서
+``` bash
+./build_so.sh   # (make clean && make so)
+cp libpimss.so tutorial
+cd tutorial
+./build.sh      # (make 
+```
+
 ## Installing PIM Software Stack
-* The implementation was compiled and tested with #TODO#
+* The implementation was compiled and tested with Ubuntu 18.04, gcc, g++ #TODO#
 
 ``` bash
 ./test.sh    # (make clean && make fpga && make)
