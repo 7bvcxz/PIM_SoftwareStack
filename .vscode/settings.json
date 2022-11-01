@@ -46,6 +46,8 @@
     "random": "cpp",
     "string": "cpp",
     "fpga_pim.h": "c",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "unordered_set": "cpp",
+    "map": "cpp"
   }
 }
