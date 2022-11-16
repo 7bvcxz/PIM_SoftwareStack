@@ -6,7 +6,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <chrono>
-#include "gem5/m5ops.h"
+#include <gem5/m5ops.h>
+#include "m5_mmap.h"
 
 #define LEN_PIM 0x100000000
 
@@ -66,6 +67,9 @@ void set_pim_device() {
 	// for (int i=0; i<LEN_PIM; i++)
 	// 	pim_mem[i] = 0;
 	pim_base = (uint64_t)pim_mem;
+	
+	m5op_addr = 0xFFFF0000;
+	map_m5_mem();
 }
 
 void set_normal_device() {
@@ -85,8 +89,8 @@ void send() {
 	buffer = (uint8_t*)calloc(256, sizeof(uint8_t));
 	
 	auto start = Time::now();
-	system("sudo m5 dumpstats");
-	//m5_dump_stats(0,0);
+	//system("sudo m5 dumpstats");
+	m5_dump_stats(0,0);
 	for (int i=0; i<num_line; i++) {
 		for (int j=0; j<burstSize; j+=8)
 			((uint64_t*)(pim_mem + file_hex_addr[i]))[j] = 1;
@@ -106,8 +110,8 @@ void send() {
 		}
 		*/
 	}
-	//m5_dump_stats(0,0);
-	system("sudo m5 dumpstats");
+	m5_dump_stats(0,0);
+	//system("sudo m5 dumpstats");
 	auto end = Time::now();
 	std::cout << "All trace ended\n";
 	fsec time = end - start;
@@ -129,8 +133,8 @@ int main(int argc, char **argv) {
 	set_pim_device();
 	//set_normal_device();
 	
-	system("sudo m5 checkpoint");
-	//m5_checkpoint(0, 0);
+	//system("sudo m5 checkpoint");
+	m5_checkpoint(0, 0);
     system("echo CPU Switched!");
 
 	send();
