@@ -130,7 +130,8 @@ int main(int argc, char **argv) {
 	set_pim_device();
 	//set_normal_device();
 	
-	system("sudo m5 checkpoint");
+	//system("sudo m5 checkpoint");
+	m5_checkpoint(0, 0);
     system("echo CPU Switched!");
 
 	send();
