@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <chrono>
-#include <gem5/m5ops.h>
+#include "gem5/m5ops.h"
 
 #define LEN_PIM 0x100000000
 
