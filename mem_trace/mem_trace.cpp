@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <chrono>
+#include <gem5/m5ops.h>
 
 #define LEN_PIM 0x100000000
 
@@ -16,11 +17,41 @@ uint8_t* pim_mem;
 uint8_t* buffer;
 uint64_t pim_base;
 
+int num_line;
+bool *file_is_write;
+uint32_t *file_hex_addr;
+
 uint32_t burstSize = 32;
 
 void set_trace_file(char **argv, char option) {
 	std::cout << " > set trace file\n";
-	fm.open("./mem_trace/"+std::string(argv[1])+option+".txt");
+	fm.open("./mem_trace/pim_"+std::string(argv[1])+option+".txt");
+	
+	while(std::getline(fm, line))
+		num_line++;
+	printf("tada!! : %d\n", num_line);
+	fm.close();
+
+	file_is_write = (bool*)calloc(num_line, sizeof(bool));
+	file_hex_addr = (uint32_t*)calloc(num_line, sizeof(uint32_t));
+	
+	int i = 0;
+	fm.open("./mem_trace/pim_"+std::string(argv[1])+option+".txt");
+	while(std::getline(fm, line)) {
+		std::stringstream linestream(line);
+		int is_write;
+		uint32_t hex_addr;
+
+		linestream >> is_write >> hex_addr;
+	
+		if (is_write == 0) {
+			file_is_write[i] = false;
+		} else {
+			file_is_write[i] = true;
+		}
+		file_hex_addr[i] = hex_addr;
+		i++;
+	}
 }
 
 void set_pim_device() {
@@ -45,41 +76,39 @@ void set_normal_device() {
 	pim_base = (uint64_t)pim_mem;
 }
 
-void trace_and_send() {
+void send() {
 	std::cout << " > trace and send\n";
 
 	typedef std::chrono::high_resolution_clock Time;
 	typedef std::chrono::milliseconds ms;
 	typedef std::chrono::duration<float> fsec;
 
-	buffer = (uint8_t*)calloc(128, sizeof(uint8_t));
+	buffer = (uint8_t*)calloc(256, sizeof(uint8_t));
 	
 	auto start = Time::now();
-	while(std::getline(fm, line)) {
-		std::stringstream linestream(line);
-		int is_write;
-		uint64_t hex_addr;
-
-		linestream >> is_write >> hex_addr;
-
-		if (is_write == 0) {  // read
+	//system("sudo m5 dumpstats");
+	m5_dump_stats(0,0);
+	for (int i=0; i<num_line; i++) {
+		for (int j=0; j<burstSize; j+=8)
+			((uint64_t*)(pim_mem + file_hex_addr[i]))[j] = 1;
+		/*
+		if (!file_is_write[i]) {  // read
+			// std::cout << "0\n";
 			// std::memcpy(buffer, pim_mem + hex_addr, burstSize);
-			for (int i=0; i<burstSize; i++)
-				((uint8_t*)(pim_mem + hex_addr))[i] = 1;
 			// buffer[i] = ((uint8_t*)(pim_mem + hex_addr))[i];
-		} else if (is_write == 1) {  // write
+		} else if (file_is_write[i]) {  // write
+			// std::cout << "1\n";
 			// std::memcpy(pim_mem + hex_addr, buffer, burstSize);
-			for (int i=0; i<burstSize; i++)
-				((uint8_t*)(pim_mem + hex_addr))[i] = 1;
-		} else if (is_write == 2) {  // preprocess end
-			start = Time::now();
-			system("sudo m5 dumpstats");
+			for (int j=0; j<burstSize; j+=8)
+				((uint64_t*)(pim_mem + file_hex_addr[i]))[j] = 1;
 		} else {
 			std::cout << "This should not be done... Somethings wrong\n";
+			return;
 		}
+		*/
 	}
-	system("sudo m5 dumpstats");
-	
+	m5_dump_stats(0,0);
+	//system("sudo m5 dumpstats");
 	auto end = Time::now();
 	std::cout << "All trace ended\n";
 	fsec time = end - start;
@@ -99,12 +128,13 @@ int main(int argc, char **argv) {
 	set_trace_file(argv, option);
 
 	set_pim_device();
-	// set_normal_device();
+	//set_normal_device();
 	
 	system("sudo m5 checkpoint");
     system("echo CPU Switched!");
 
-	trace_and_send();
+	send();
+	send();
 
 	return 0;
 }
