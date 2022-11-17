@@ -60,8 +60,7 @@ uint64_t m5op_addr = M5OP_ADDR;
 const char *m5_mmap_dev = "/dev/mem";
 
 void
-map_m5_mem()
-{
+map_m5_mem() {
     int fd;
 
     if (m5_mem) {
@@ -86,8 +85,7 @@ map_m5_mem()
 }
 
 void
-unmap_m5_mem()
-{
+unmap_m5_mem() {
     if (m5_mem) {
         munmap(m5_mem, 0x10000);
         m5_mem = NULL;
