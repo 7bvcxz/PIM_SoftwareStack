@@ -90,14 +90,17 @@ void send() {
 	uint8_t* buffer = (uint8_t*)calloc(32*16, sizeof(uint8_t));
 	auto start = Time::now();
 	//system("sudo m5 dumpstats");
-	m5_work_begin_addr(0,0);
-	
+	//m5_work_begin_addr(0,0);
+	m5_dump_stats(0,0);
+
 	for (int i=0; i<num_line; i++)
 		std::memcpy(buffer, pim_mem + file_hex_addr[i], burstSize*16);
 
 	//system("sudo m5 dumpstats");
-	m5_work_end_addr(0,0);
+	//m5_work_end_addr(0,0);
+	m5_dump_stats(0,0);
 	auto end = Time::now();
+	
 	std::cout << "All trace ended\n";
 	fsec time = end - start;
 	std::cout << time.count() << "s\n";
