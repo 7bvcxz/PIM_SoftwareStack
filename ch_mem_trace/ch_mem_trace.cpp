@@ -94,7 +94,7 @@ void send() {
 	m5_dump_stats(0,0);
 
 	for (int i=0; i<num_line; i++)
-		std::memcpy(buffer, pim_mem + file_hex_addr[i], burstSize*16);
+		std::memcpy(pim_mem + file_hex_addr[i], buffer, burstSize*16);
 
 	//system("sudo m5 dumpstats");
 	//m5_work_end_addr(0,0);
