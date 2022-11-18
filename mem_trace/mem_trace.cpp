@@ -63,7 +63,7 @@ void set_pim_device() {
 	else
 		std::cout << "Opened /dev/PIM !\n";
 
-	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	// for (int i=0; i<LEN_PIM; i++)
 	// 	pim_mem[i] = 0;
 	pim_base = (uint64_t)pim_mem;
@@ -92,8 +92,10 @@ void send() {
 	system("sudo m5 dumpstats");
 	//m5_dump_stats(0,0);
 	for (int i=0; i<num_line; i++) {
-		for (int j=0; j<burstSize; j+=8)
-			((uint64_t*)(pim_mem + file_hex_addr[i]))[j] = 1;
+		std::memcpy(pim_mem + file_hex_addr[i], buffer, burstSize);
+
+		// for (int j=0; j<burstSize; j+=8)
+		//	((uint64_t*)(pim_mem + file_hex_addr[i]))[j] = 1;
 		/*
 		if (!file_is_write[i]) {  // read
 			// std::cout << "0\n";
