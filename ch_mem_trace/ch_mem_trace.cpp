@@ -6,7 +6,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <chrono>
-#include <pthread.h>
+#include <gem5/m5ops.h>
+#include "m5_mmap.h"
 
 #define LEN_PIM 0x100000000
 
@@ -14,7 +15,6 @@ int fd;
 std::ifstream fm;
 std::string line;
 uint8_t* pim_mem;
-uint8_t* buffer;
 uint64_t pim_base;
 
 int num_line;
@@ -22,6 +22,10 @@ bool *file_is_write;
 uint32_t *file_hex_addr;
 
 uint32_t burstSize = 32;
+
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::milliseconds ms;
+typedef std::chrono::duration<float> fsec;
 
 void set_trace_file(char **argv, char option) {
 	std::cout << " > set trace file\n";
@@ -64,6 +68,13 @@ void set_pim_device() {
 
 	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	pim_base = (uint64_t)pim_mem;
+	uint8_t* buffer = (uint8_t*)calloc(32*16, sizeof(uint8_t));
+	
+	for (int i=0; i<num_line; i++)
+		std::memcpy(pim_mem + file_hex_addr[i], buffer, burstSize*16);
+
+	m5op_addr = 0xFFFF0000;
+	map_m5_mem();
 }
 
 void set_normal_device() {
@@ -76,17 +87,16 @@ void set_normal_device() {
 void send() {
 	std::cout << " > trace and send\n";
 
-	typedef std::chrono::high_resolution_clock Time;
-	typedef std::chrono::milliseconds ms;
-	typedef std::chrono::duration<float> fsec;
-
+	uint8_t* buffer = (uint8_t*)calloc(32*16, sizeof(uint8_t));
 	auto start = Time::now();
-	system("sudo m5 dumpstats");
-
+	//system("sudo m5 dumpstats");
+	m5_work_begin_addr(0,0);
+	
 	for (int i=0; i<num_line; i++)
 		std::memcpy(buffer, pim_mem + file_hex_addr[i], burstSize*16);
 
-	system("sudo m5 dumpstats");
+	//system("sudo m5 dumpstats");
+	m5_work_end_addr(0,0);
 	auto end = Time::now();
 	std::cout << "All trace ended\n";
 	fsec time = end - start;
@@ -111,7 +121,6 @@ int main(int argc, char **argv) {
 	system("sudo m5 checkpoint");
     system("echo CPU Switched!");
 
-	send();
 	send();
 
 	return 0;
