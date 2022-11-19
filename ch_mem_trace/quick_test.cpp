@@ -77,29 +77,15 @@ void set_pim_device() {
 	map_m5_mem();
 }
 
-void set_normal_device() {
-	std::cout << " > set normal device\n";
-	
-	pim_mem = (uint8_t*)calloc(LEN_PIM, sizeof(uint8_t));
-	pim_base = (uint64_t)pim_mem;
-}
-
 void send() {
 	std::cout << " > trace and send\n";
 
 	uint8_t* buffer2 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
 	auto start = Time::now();
-	//system("sudo m5 dumpstats");
-	//m5_work_begin_addr(0,0);
-	//m5_dump_stats(0,0);
-	//m5_reset_stats(0,0);
 
 	for (int i=0; i<num_line; i++)
 		std::memcpy(pim_mem + file_hex_addr[i], buffer2, burstSize*16);
 
-	//system("sudo m5 dumpstats");
-	//m5_work_end_addr(0,0);
-	//m5_dump_stats(0,0);
 	auto end = Time::now();
 	
 	std::cout << "All trace ended\n";
@@ -119,12 +105,8 @@ int main(int argc, char **argv) {
 
 	set_trace_file(argv, option);
 
-	//set_pim_device();
-	set_normal_device();
+	set_pim_device();
 	
-	system("sudo m5 checkpoint");
-    system("echo CPU Switched!");
-
 	send();
 
 	return 0;
