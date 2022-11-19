@@ -6,8 +6,6 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <chrono>
-#include <gem5/m5ops.h>
-#include "m5_mmap.h"
 
 #define LEN_PIM 0x100000000
 
@@ -15,6 +13,7 @@ int fd;
 std::ifstream fm;
 std::string line;
 uint8_t* pim_mem;
+uint8_t* buffer;
 uint64_t pim_base;
 
 int num_line;
@@ -23,13 +22,9 @@ uint32_t *file_hex_addr;
 
 uint32_t burstSize = 32;
 
-typedef std::chrono::high_resolution_clock Time;
-typedef std::chrono::milliseconds ms;
-typedef std::chrono::duration<float> fsec;
-
 void set_trace_file(char **argv, char option) {
 	std::cout << " > set trace file\n";
-	fm.open("./ch_mem_trace/pim_"+std::string(argv[1])+option+".txt");
+	fm.open("./mem_trace/pim_"+std::string(argv[1])+option+".txt");
 	
 	while(std::getline(fm, line))
 		num_line++;
@@ -39,7 +34,7 @@ void set_trace_file(char **argv, char option) {
 	file_hex_addr = (uint32_t*)calloc(num_line, sizeof(uint32_t));
 	
 	int i = 0;
-	fm.open("./ch_mem_trace/pim_"+std::string(argv[1])+option+".txt");
+	fm.open("./mem_trace/pim_"+std::string(argv[1])+option+".txt");
 	while(std::getline(fm, line)) {
 		std::stringstream linestream(line);
 		int is_write;
@@ -68,28 +63,22 @@ void set_pim_device() {
 
 	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	pim_base = (uint64_t)pim_mem;
-	uint8_t* buffer1 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
-	
-	for (int i=0; i<num_line; i++)
-		std::memcpy(pim_mem + file_hex_addr[i], buffer1, burstSize*16);
-
-	m5op_addr = 0xFFFF0000;
-	map_m5_mem();
 }
 
 void send() {
 	std::cout << " > trace and send\n";
 
-	uint8_t* buffer2 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
-	auto start = Time::now();
+	typedef std::chrono::high_resolution_clock Time;
+	typedef std::chrono::milliseconds ms;
+	typedef std::chrono::duration<float> fsec;
 
-	for (int i=0; i<num_line; i++) {
-		std::cout << file_hex_addr[i] << std::endl;
-		//std::memcpy(pim_mem + file_hex_addr[i], buffer2, burstSize*16);
-	}
-
-	auto end = Time::now();
+	buffer = (uint8_t*)calloc(256, sizeof(uint8_t));
 	
+	auto start = Time::now();
+	for (int i=0; i<num_line; i++)
+		std::memcpy(pim_mem + file_hex_addr[i], buffer, burstSize);
+	
+	auto end = Time::now();
 	std::cout << "All trace ended\n";
 	fsec time = end - start;
 	std::cout << time.count() << "s\n";
@@ -97,7 +86,7 @@ void send() {
 
 int main(int argc, char **argv) {
 	char option;
-	std::cout << "option : 1 / 2 / 3\nenter option : ";
+	std::cout << "option : 1 / 2 / 3\nenter option :";
 	std::cin >> option;
 
 	if (argc <= 1) {
@@ -107,7 +96,7 @@ int main(int argc, char **argv) {
 
 	set_trace_file(argv, option);
 
-	//set_pim_device();
+	set_pim_device();
 	
 	send();
 
