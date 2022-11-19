@@ -68,10 +68,10 @@ void set_pim_device() {
 
 	pim_mem = (uint8_t*)mmap(NULL, LEN_PIM, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	pim_base = (uint64_t)pim_mem;
-	uint8_t* buffer = (uint8_t*)calloc(32*16, sizeof(uint8_t));
+	uint8_t* buffer1 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
 	
 	for (int i=0; i<num_line; i++)
-		std::memcpy(pim_mem + file_hex_addr[i], buffer, burstSize*16);
+		std::memcpy(pim_mem + file_hex_addr[i], buffer1, burstSize*16);
 
 	m5op_addr = 0xFFFF0000;
 	map_m5_mem();
@@ -87,7 +87,7 @@ void set_normal_device() {
 void send() {
 	std::cout << " > trace and send\n";
 
-	uint8_t* buffer = (uint8_t*)calloc(32*16, sizeof(uint8_t));
+	uint8_t* buffer2 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
 	auto start = Time::now();
 	//system("sudo m5 dumpstats");
 	//m5_work_begin_addr(0,0);
@@ -95,7 +95,7 @@ void send() {
 	m5_reset_stats(0,0);
 
 	for (int i=0; i<num_line; i++)
-		std::memcpy(pim_mem + file_hex_addr[i], buffer, burstSize*16);
+		std::memcpy(buffer2, pim_mem + file_hex_addr[i], burstSize*16);
 
 	//system("sudo m5 dumpstats");
 	//m5_work_end_addr(0,0);
