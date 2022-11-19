@@ -85,7 +85,7 @@ void send() {
 
 	for (int i=0; i<num_line; i++) {
 		std::cout << file_hex_addr[i] << std::endl;
-		//std::memcpy(pim_mem + file_hex_addr[i], buffer2, burstSize*16);
+		std::memcpy(pim_mem + file_hex_addr[i], buffer2, burstSize*16);
 	}
 
 	auto end = Time::now();
