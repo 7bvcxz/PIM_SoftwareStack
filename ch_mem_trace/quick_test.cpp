@@ -81,6 +81,8 @@ void send() {
 	std::cout << " > trace and send\n";
 
 	uint8_t* buffer2 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
+	for (int i=0; i<burstSize*16; i++)
+		buffer2[i] = 1;
 	auto start = Time::now();
 
 	for (int i=0; i<num_line; i++) {
