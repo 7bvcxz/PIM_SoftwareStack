@@ -91,7 +91,8 @@ void send() {
 	auto start = Time::now();
 	//system("sudo m5 dumpstats");
 	//m5_work_begin_addr(0,0);
-	m5_dump_stats(0,0);
+	//m5_dump_stats(0,0);
+	m5_reset_stats(0,0);
 
 	for (int i=0; i<num_line; i++)
 		std::memcpy(pim_mem + file_hex_addr[i], buffer, burstSize*16);
