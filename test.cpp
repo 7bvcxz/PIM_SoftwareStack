@@ -372,7 +372,7 @@ void test_lstm_blas(int option) {
 	if (DebugMode())
 		std::cout << "LEN_PIM: " << LEN_PIM << std::endl;
 	
-	int m = 512;
+	int m = 640;
 	int n = 4096;
 
 	uint8_t *in = (uint8_t *)malloc(sizeof(uint16_t) * m);
