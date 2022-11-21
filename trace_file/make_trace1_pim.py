@@ -2,8 +2,8 @@ import os
 
 name = str(input())
 
-out_f = open("pim_"+name+"_t2.txt", "w")
-in_f = open(name+"_t2.txt", "r")
+out_f = open("pim_"+name+"_t1.txt", "w")
+in_f = open(name+"_t1.txt", "r")
 flag = 0
 
 lines = in_f.readlines()

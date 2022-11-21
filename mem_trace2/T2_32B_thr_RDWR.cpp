@@ -76,8 +76,11 @@ void set_pim_device() {
 	for (int i=0; i<burstSize*16; i++)
 		buffer1[i] = 1;
 
-	for (int i=0; i<num_line; i++)
-		std::memcpy(pim_mem + file_hex_addr[i], buffer1, burstSize);
+	for (int i=0; i<num_line; i++) {
+		for (int ch=0; ch<16; ch++) {
+			std::memcpy(pim_mem + file_hex_addr[i] + burstSize*ch, buffer1, burstSize);
+		}
+	}
 }
 
 void set_normal_device() {
@@ -93,7 +96,10 @@ static void *send_channel(void *input_) {
 	uint8_t* buffer2 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
 
 	for (int i=0; i<num_line; i++) {
-		std::memcpy(pim_mem + file_hex_addr[i] + ch_dist, buffer2, burstSize);
+		if (file_is_write[i])  // WRITE
+			std::memcpy(pim_mem + file_hex_addr[i] + ch_dist, buffer2, burstSize);
+		else  // READ
+			std::memcpy(buffer2, pim_mem + file_hex_addr[i] + ch_dist, burstSize);
 	}
 }
 
