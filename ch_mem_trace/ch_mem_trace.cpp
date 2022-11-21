@@ -71,8 +71,8 @@ void set_pim_device() {
 	for (int i=0; i<burstSize*16; i++)
 		buffer1[i] = 1;
 	
-	for (int i=0; i<num_line; i++)
-		std::memcpy(pim_mem + file_hex_addr[i], buffer1, burstSize*16);
+	//for (int i=0; i<num_line; i++)
+	//	std::memcpy(pim_mem + file_hex_addr[i], buffer1, burstSize*16);
 }
 
 void set_normal_device() {
@@ -95,8 +95,9 @@ void send() {
 	//m5_dump_stats(0,0);
 	m5_reset_stats(0,0);
 
-	for (int i=0; i<num_line; i++)
-		std::memcpy(pim_mem + file_hex_addr[i], buffer2, burstSize*16);
+	for (int i=0; i<num_line; i++) {
+		std::memcpy(pim_mem + file_hex_addr[i], buffer2, burstSize);
+	}
 
 	//system("sudo m5 dumpstats");
 	//m5_work_end_addr(0,0);
