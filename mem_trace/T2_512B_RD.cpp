@@ -28,7 +28,7 @@ typedef std::chrono::duration<float> fsec;
 
 void set_trace_file(char **argv, char option) {
 	std::cout << " > set trace file\n";
-	fm.open("./ch_mem_trace/pim_"+std::string(argv[1])+option+".txt");
+	fm.open("./trace_file/pim_"+std::string(argv[1])+option+"_t2.txt");
 	
 	while(std::getline(fm, line))
 		num_line++;
@@ -38,7 +38,7 @@ void set_trace_file(char **argv, char option) {
 	file_hex_addr = (uint32_t*)calloc(num_line, sizeof(uint32_t));
 	
 	int i = 0;
-	fm.open("./ch_mem_trace/pim_"+std::string(argv[1])+option+".txt");
+	fm.open("./trace_file/pim_"+std::string(argv[1])+option+"_t2.txt");
 	while(std::getline(fm, line)) {
 		std::stringstream linestream(line);
 		int is_write;
@@ -72,7 +72,8 @@ void set_pim_device() {
 		buffer1[i] = 1;
 	
 	for (int i=0; i<num_line; i++)
-		std::memcpy(pim_mem + file_hex_addr[i], buffer1, burstSize*16);
+		for (int ch=0; ch<16; ch++)
+		std::memcpy(pim_mem + file_hex_addr[i] + ch*burstSize, buffer1, burstSize);
 }
 
 void set_normal_device() {
@@ -85,24 +86,16 @@ void set_normal_device() {
 void send() {
 	std::cout << " > trace and send\n";
 
-	uint8_t* buffer2 = (uint8_t*)calloc(burstSize*16, sizeof(uint8_t));
-	for (int i=0; i<burstSize*16; i++)
+	uint8_t* buffer2 = (uint8_t*)calloc(burstSize*16*2, sizeof(uint8_t));
+	for (int i=0; i<burstSize*16*2; i++)
 		buffer2[i] = 2;
 
-	system("sudo m5 checkpoint");
-    system("echo CPU Switched!");
-	
 	auto start = Time::now();
-	//system("sudo m5 dumpstats");
-	//m5_work_begin_addr(0,0);
-	//m5_dump_stats(0,0);
 	m5_reset_stats(0,0);
 
 	for (int i=0; i<num_line; i++)
 		std::memcpy(buffer2, pim_mem + file_hex_addr[i], burstSize*16);
 
-	//system("sudo m5 dumpstats");
-	//m5_work_end_addr(0,0);
 	m5_dump_stats(0,0);
 	auto end = Time::now();
 	
@@ -126,6 +119,8 @@ int main(int argc, char **argv) {
 	set_pim_device();
 	//set_normal_device();
 	
+	system("sudo m5 checkpoint");
+    system("echo CPU Switched!");
 
 	send();
 
