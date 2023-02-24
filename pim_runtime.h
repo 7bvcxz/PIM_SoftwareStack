@@ -28,7 +28,7 @@ size_t WriteReg(PIM_REG pim_reg, uint8_t *data, size_t len);
 // PIM Kernel Executor
 void ExecuteKernel_1COL(uint8_t *pim_target, bool is_write, int bank);
 void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank);
-bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank);
+bool ExecuteKernel(uint8_t *pim_1, uint8_t *pim_2, uint8_t *pim_3, uint8_t *pim_4, PIM_CMD pim_cmd, int bank);
 
 // Some tools
 uint64_t Ceiling(uint64_t num, uint64_t stride);

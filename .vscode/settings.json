@@ -45,7 +45,7 @@
     "memory_resource": "cpp",
     "random": "cpp",
     "string": "cpp",
-    "fpga_pim.h": "c",
+    "fpga_runtime.h": "c",
     "cinttypes": "cpp",
     "unordered_set": "cpp",
     "map": "cpp"

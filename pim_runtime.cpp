@@ -444,7 +444,7 @@ void ExecuteKernel_8COL(uint8_t *pim_target, bool is_write, int bank) {
 		pthread_join(thr_grp[ch], NULL);
 }
 
-bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
+bool ExecuteKernel(uint8_t *pim_1, uint8_t *pim_2, uint8_t *pim_3, uint8_t *pim_4, PIM_CMD pim_cmd, int bank)
 {
 #ifdef fpga_mode
 		PushFpgaData((uint32_t*)data_temp_);
@@ -459,12 +459,12 @@ bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_c
 	case (PIM_CMD::WRITE_SRF_INPUT):
 		if (DebugMode())
 			std::cout << "  Execute: WRITE_SRF_INPUT\n";
-		WriteReg(PIM_REG::SRF, pim_x, WORD_SIZE);
+		WriteReg(PIM_REG::SRF, pim_1, WORD_SIZE);
 		break;
 	case (PIM_CMD::WRITE_GRF_INPUT):
 		if (DebugMode())
 			std::cout << "  Execute: WRITE_GRF_INPUT\n";
-		WriteReg(PIM_REG::GRF, pim_x, WORD_SIZE * 16);
+		WriteReg(PIM_REG::GRF, pim_1, WORD_SIZE * 16);
 		break;
 	case (PIM_CMD::SB_MODE):
 		if (DebugMode())
@@ -481,65 +481,85 @@ bool ExecuteKernel(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_c
 			std::cout << "  Execute: PIM_OP_MODE\n";
 		ReadReg(PIM_REG::PIM_OP_MODE, data_temp_, WORD_SIZE);
 		break;
-	case (PIM_CMD::READ_INPUT_1COL):
+	case (PIM_CMD::READ_OPERAND1_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_INPUT_1COL\n";
-		ExecuteKernel_1COL(pim_x, false, bank);
+			std::cout << "  Execute: READ_OPERAND1_1COL\n";
+		ExecuteKernel_1COL(pim_1, false, bank);
 		break;
-	case (PIM_CMD::READ_WEIGHT_1COL):
+	case (PIM_CMD::READ_OPERAND2_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_WEIGHT_1COL\n";
-		ExecuteKernel_1COL(pim_y, false, bank);
+			std::cout << "  Execute: READ_OPERAND2_1COL\n";
+		ExecuteKernel_1COL(pim_2, false, bank);
 		break;
-	case (PIM_CMD::READ_OUTPUT_1COL):
+	case (PIM_CMD::READ_OPERAND3_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_OUTPUT_1COL\n";
-		ExecuteKernel_1COL(pim_z, false, bank);
+			std::cout << "  Execute: READ_OPERAND3_1COL\n";
+		ExecuteKernel_1COL(pim_3, false, bank);
 		break;
-	case (PIM_CMD::WRITE_INPUT_1COL):
+	case (PIM_CMD::READ_OPERAND4_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_INPUT_1COL\n";
-		ExecuteKernel_1COL(pim_x, true, bank);
+			std::cout << "  Execute: READ_OPERAND4_1COL\n";
+		ExecuteKernel_1COL(pim_4, false, bank);
 		break;
-	case (PIM_CMD::WRITE_WEIGHT_1COL):
+	case (PIM_CMD::WRITE_OPERAND1_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_WEIGHT_1COL\n";
-		ExecuteKernel_1COL(pim_y, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND1_1COL\n";
+		ExecuteKernel_1COL(pim_1, true, bank);
 		break;
-	case (PIM_CMD::WRITE_OUTPUT_1COL):
+	case (PIM_CMD::WRITE_OPERAND2_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_OUTPUT_1COL\n";
-		ExecuteKernel_1COL(pim_z, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND2_1COL\n";
+		ExecuteKernel_1COL(pim_2, true, bank);
 		break;
-	case (PIM_CMD::READ_INPUT_8COL):
+	case (PIM_CMD::WRITE_OPERAND3_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_INPUT_8COL\n";
-		ExecuteKernel_8COL(pim_x, false, bank);
+			std::cout << "  Execute: WRITE_OPERAND3_1COL\n";
+		ExecuteKernel_1COL(pim_3, true, bank);
 		break;
-	case (PIM_CMD::READ_WEIGHT_8COL):
+	case (PIM_CMD::WRITE_OPERAND4_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_WEIGHT_8COL\n";
-		ExecuteKernel_8COL(pim_y, false, bank);
+			std::cout << "  Execute: WRITE_OPERAND4_1COL\n";
+		ExecuteKernel_1COL(pim_4, true, bank);
 		break;
-	case (PIM_CMD::READ_OUTPUT_8COL):
+	case (PIM_CMD::READ_OPERAND1_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_OUTPUT_8COL\n";
-		ExecuteKernel_8COL(pim_z, false, bank);
+			std::cout << "  Execute: READ_OPERAND1_8COL\n";
+		ExecuteKernel_8COL(pim_1, false, bank);
 		break;
-	case (PIM_CMD::WRITE_INPUT_8COL):
+	case (PIM_CMD::READ_OPERAND2_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_INPUT_8COL\n";
-		ExecuteKernel_8COL(pim_x, true, bank);
+			std::cout << "  Execute: READ_OPERAND2_8COL\n";
+		ExecuteKernel_8COL(pim_2, false, bank);
 		break;
-	case (PIM_CMD::WRITE_WEIGHT_8COL):
+	case (PIM_CMD::READ_OPERAND3_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_WEIGHT_8COL\n";
-		ExecuteKernel_8COL(pim_y, true, bank);
+			std::cout << "  Execute: READ_OPERAND3_8COL\n";
+		ExecuteKernel_8COL(pim_3, false, bank);
 		break;
-	case (PIM_CMD::WRITE_OUTPUT_8COL):
+	case (PIM_CMD::READ_OPERAND4_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_OUTPUT_8COL\n";
-		ExecuteKernel_8COL(pim_z, true, bank);
+			std::cout << "  Execute: READ_OPERAND4_8COL\n";
+		ExecuteKernel_8COL(pim_4, false, bank);
+		break;
+	case (PIM_CMD::WRITE_OPERAND1_8COL):
+		if (DebugMode())
+			std::cout << "  Execute: WRITE_OPERAND1_8COL\n";
+		ExecuteKernel_8COL(pim_1, true, bank);
+		break;
+	case (PIM_CMD::WRITE_OPERAND2_8COL):
+		if (DebugMode())
+			std::cout << "  Execute: WRITE_OPERAND2_8COL\n";
+		ExecuteKernel_8COL(pim_2, true, bank);
+		break;
+	case (PIM_CMD::WRITE_OPERAND3_8COL):
+		if (DebugMode())
+			std::cout << "  Execute: WRITE_OPERAND3_8COL\n";
+		ExecuteKernel_8COL(pim_3, true, bank);
+		break;
+	case (PIM_CMD::WRITE_OPERAND4_8COL):
+		if (DebugMode())
+			std::cout << "  Execute: WRITE_OPERAND4_8COL\n";
+		ExecuteKernel_8COL(pim_4, true, bank);
 		break;
 	}
 	return 1;
@@ -693,71 +713,71 @@ void GetFpgaAddr_8COL(uint8_t *pim_target, bool is_write, int bank)
 	}
 }
 
-bool GetFpgaAddr(uint8_t *pim_x, uint8_t *pim_y, uint8_t *pim_z, PIM_CMD pim_cmd, int bank)
+bool GetFpgaAddr(uint8_t *pim_1, uint8_t *pim_2, uint8_t *pim_3, PIM_CMD pim_cmd, int bank)
 {
 	uint8_t *pim_target;
 	bool is_write;
 	switch (pim_cmd)
 	{
-	case (PIM_CMD::READ_INPUT_1COL):
+	case (PIM_CMD::READ_OPERAND1_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_INPUT_1COL\n";
-		GetFpgaAddr_1COL(pim_x, false, bank);
+			std::cout << "  Execute: READ_OPERAND1_1COL\n";
+		GetFpgaAddr_1COL(pim_1, false, bank);
 		break;
-	case (PIM_CMD::READ_WEIGHT_1COL):
+	case (PIM_CMD::READ_OPERAND2_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_WEIGHT_1COL\n";
-		GetFpgaAddr_1COL(pim_y, false, bank);
+			std::cout << "  Execute: READ_OPERAND2_1COL\n";
+		GetFpgaAddr_1COL(pim_2, false, bank);
 		break;
-	case (PIM_CMD::READ_OUTPUT_1COL):
+	case (PIM_CMD::READ_OPERAND3_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_OUTPUT_1COL\n";
-		GetFpgaAddr_1COL(pim_z, false, bank);
+			std::cout << "  Execute: READ_OPERAND3_1COL\n";
+		GetFpgaAddr_1COL(pim_3, false, bank);
 		break;
-	case (PIM_CMD::WRITE_INPUT_1COL):
+	case (PIM_CMD::WRITE_OPERAND1_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_INPUT_1COL\n";
-		GetFpgaAddr_1COL(pim_x, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND1_1COL\n";
+		GetFpgaAddr_1COL(pim_1, true, bank);
 		break;
-	case (PIM_CMD::WRITE_WEIGHT_1COL):
+	case (PIM_CMD::WRITE_OPERAND2_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_WEIGHT_1COL\n";
-		GetFpgaAddr_1COL(pim_y, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND2_1COL\n";
+		GetFpgaAddr_1COL(pim_2, true, bank);
 		break;
-	case (PIM_CMD::WRITE_OUTPUT_1COL):
+	case (PIM_CMD::WRITE_OPERAND3_1COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_OUTPUT_1COL\n";
-		GetFpgaAddr_1COL(pim_z, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND3_1COL\n";
+		GetFpgaAddr_1COL(pim_3, true, bank);
 		break;
-	case (PIM_CMD::READ_INPUT_8COL):
+	case (PIM_CMD::READ_OPERAND1_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_INPUT_8COL\n";
-		GetFpgaAddr_8COL(pim_x, false, bank);
+			std::cout << "  Execute: READ_OPERAND1_8COL\n";
+		GetFpgaAddr_8COL(pim_1, false, bank);
 		break;
-	case (PIM_CMD::READ_WEIGHT_8COL):
+	case (PIM_CMD::READ_OPERAND2_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_WEIGHT_8COL\n";
-		GetFpgaAddr_8COL(pim_y, false, bank);
+			std::cout << "  Execute: READ_OPERAND2_8COL\n";
+		GetFpgaAddr_8COL(pim_2, false, bank);
 		break;
-	case (PIM_CMD::READ_OUTPUT_8COL):
+	case (PIM_CMD::READ_OPERAND3_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: READ_OUTPUT_8COL\n";
-		GetFpgaAddr_8COL(pim_z, false, bank);
+			std::cout << "  Execute: READ_OPERAND3_8COL\n";
+		GetFpgaAddr_8COL(pim_3, false, bank);
 		break;
-	case (PIM_CMD::WRITE_INPUT_8COL):
+	case (PIM_CMD::WRITE_OPERAND1_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_INPUT_8COL\n";
-		GetFpgaAddr_8COL(pim_x, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND1_8COL\n";
+		GetFpgaAddr_8COL(pim_1, true, bank);
 		break;
-	case (PIM_CMD::WRITE_WEIGHT_8COL):
+	case (PIM_CMD::WRITE_OPERAND2_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_WEIGHT_8COL\n";
-		GetFpgaAddr_8COL(pim_y, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND2_8COL\n";
+		GetFpgaAddr_8COL(pim_2, true, bank);
 		break;
-	case (PIM_CMD::WRITE_OUTPUT_8COL):
+	case (PIM_CMD::WRITE_OPERAND3_8COL):
 		if (DebugMode())
-			std::cout << "  Execute: WRITE_OUTPUT_8COL\n";
-		GetFpgaAddr_8COL(pim_z, true, bank);
+			std::cout << "  Execute: WRITE_OPERAND3_8COL\n";
+		GetFpgaAddr_8COL(pim_3, true, bank);
 		break;
 	}
 	return 1;

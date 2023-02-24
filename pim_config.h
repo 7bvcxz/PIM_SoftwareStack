@@ -5,7 +5,7 @@
 #include <fcntl.h>	  // O_RDWR, O_SYNC
 #include <sys/mman.h> // MAP_SHARED, PROT_READ
 #include <random>	  // random_device
-#include "fpga_pim.h"
+#include "fpga_runtime.h"
 #include "half.hpp"
 
 #ifdef __cplusplus
@@ -50,10 +50,10 @@ typedef uint16_t unit_t;
 // options //
 // #define gem5_mode
 // #define fpga_mode
-// #define compute_mode
+#define compute_mode
 // #define thread_mode
-#define memtrace_mode
-// #define debug_mode
+// #define memtrace_mode
+#define debug_mode
 
 int LogBase2(int power_of_two);
 
@@ -136,23 +136,47 @@ enum class PIM_REG
 
 enum class PIM_CMD
 {
-	WRITE_SRF_INPUT,
-	WRITE_GRF_INPUT,
 	SB_MODE,
 	AB_MODE,
 	PIM_OP_MODE,
-	READ_WEIGHT_1COL,
-	READ_WEIGHT_8COL,
-	READ_INPUT_1COL,
-	READ_INPUT_8COL,
-	READ_OUTPUT_1COL,
-	READ_OUTPUT_8COL,
-	WRITE_WEIGHT_1COL,
-	WRITE_WEIGHT_8COL,
-	WRITE_INPUT_1COL,
-	WRITE_INPUT_8COL,
-	WRITE_OUTPUT_1COL,
-	WRITE_OUTPUT_8COL,
+	WRITE_SRF_INPUT,
+	WRITE_GRF_INPUT,
+	READ_OPERAND1_1COL,
+	READ_OPERAND2_1COL,
+	READ_OPERAND3_1COL,
+	READ_OPERAND4_1COL,
+	READ_OPERAND5_1COL,
+	READ_OPERAND6_1COL,
+	READ_OPERAND7_1COL,
+	READ_OPERAND8_1COL,
+	READ_OPERAND9_1COL,
+	WRITE_OPERAND1_1COL,
+	WRITE_OPERAND2_1COL,
+	WRITE_OPERAND3_1COL,
+	WRITE_OPERAND4_1COL,
+	WRITE_OPERAND5_1COL,
+	WRITE_OPERAND6_1COL,
+	WRITE_OPERAND7_1COL,
+	WRITE_OPERAND8_1COL,
+	WRITE_OPERAND9_1COL,
+	READ_OPERAND1_8COL,
+	READ_OPERAND2_8COL,
+	READ_OPERAND3_8COL,
+	READ_OPERAND4_8COL,
+	READ_OPERAND5_8COL,
+	READ_OPERAND6_8COL,
+	READ_OPERAND7_8COL,
+	READ_OPERAND8_8COL,
+	READ_OPERAND9_8COL,
+	WRITE_OPERAND1_8COL,
+	WRITE_OPERAND2_8COL,
+	WRITE_OPERAND3_8COL,
+	WRITE_OPERAND4_8COL,
+	WRITE_OPERAND5_8COL,
+	WRITE_OPERAND6_8COL,
+	WRITE_OPERAND7_8COL,
+	WRITE_OPERAND8_8COL,
+	WRITE_OPERAND9_8COL,
 	NULL_READ,
 };
 
@@ -215,9 +239,9 @@ public:
 
 			code0_num_cmds = 3;
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
-			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
-			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
-			code0_cmd[2] = PIM_CMD::WRITE_OUTPUT_8COL;
+			code0_cmd[0] = PIM_CMD::READ_OPERAND1_8COL;
+			code0_cmd[1] = PIM_CMD::READ_OPERAND2_8COL;
+			code0_cmd[2] = PIM_CMD::WRITE_OPERAND3_8COL;
 		} else if (op == (PIM_OP::MUL)) {
 			code0[0] = 0b01000010000000001000000000000000; // MOV(A)  GRF_A[A0]  BANK
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
@@ -230,9 +254,9 @@ public:
 
 			code0_num_cmds = 3;
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
-			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
-			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
-			code0_cmd[2] = PIM_CMD::WRITE_OUTPUT_8COL;
+			code0_cmd[0] = PIM_CMD::READ_OPERAND1_8COL;
+			code0_cmd[1] = PIM_CMD::READ_OPERAND2_8COL;
+			code0_cmd[2] = PIM_CMD::WRITE_OPERAND3_8COL;
 		} else if (op == (PIM_OP::RELU)) {
 			code0[0] = 0b01000010000000001001000000000000; // MOV(AR)  GRF_A[A0]  BANK
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
@@ -243,8 +267,8 @@ public:
 
 			code0_num_cmds = 2;
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
-			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
-			code0_cmd[1] = PIM_CMD::WRITE_OUTPUT_8COL;
+			code0_cmd[0] = PIM_CMD::READ_OPERAND1_8COL;
+			code0_cmd[1] = PIM_CMD::WRITE_OPERAND3_8COL;
 		} else if (op == (PIM_OP::BN)) {
 			code0[0] = 0b01000010000000001000000000000000;	// MOV(A)  GRF_A[A0] BANK
 			code0[1] = 0b00010000000001000000100000000111;	// JUMP    -1        7
@@ -259,10 +283,10 @@ public:
 
 			code0_num_cmds = 4;
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
-			code0_cmd[0] = PIM_CMD::READ_INPUT_8COL;
-			code0_cmd[1] = PIM_CMD::READ_WEIGHT_8COL;
-			code0_cmd[2] = PIM_CMD::READ_WEIGHT_8COL;
-			code0_cmd[3] = PIM_CMD::WRITE_OUTPUT_8COL;
+			code0_cmd[0] = PIM_CMD::READ_OPERAND1_8COL;
+			code0_cmd[1] = PIM_CMD::READ_OPERAND2_8COL;
+			code0_cmd[2] = PIM_CMD::READ_OPERAND2_8COL;
+			code0_cmd[3] = PIM_CMD::WRITE_OPERAND3_8COL;
 		} else if (op == (PIM_OP::GEMV)) {
 			code0[0] = 0b10100100001000001000100000000000; // MAC(A)  GRF_B[A0]  BANK      SRF_M[A0]
 			code0[1] = 0b00010000000001000000100000000111; // JUMP    -1         7
@@ -274,11 +298,11 @@ public:
 
 			code0_num_cmds = 1;
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
-			code0_cmd[0] = PIM_CMD::READ_WEIGHT_8COL;
+			code0_cmd[0] = PIM_CMD::READ_OPERAND2_8COL;
 
 			code1_num_cmds = 1;
 			code1_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code1_num_cmds);
-			code1_cmd[0] = PIM_CMD::WRITE_OUTPUT_1COL;
+			code1_cmd[0] = PIM_CMD::WRITE_OPERAND3_1COL;
 		} else if (op == (PIM_OP::LSTM)) {
 			code0[0] = 0b10100100001000001000100000000000; // MAC(AAM)   GRF_B[0]  BANK  SRF_M
 			code0[1] = 0b00010000000001000000100000000111; // JUMP       -1        7
@@ -291,12 +315,12 @@ public:
 
 			code0_num_cmds = 1;
 			code0_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code0_num_cmds);
-			code0_cmd[0] = PIM_CMD::READ_WEIGHT_8COL;
+			code0_cmd[0] = PIM_CMD::READ_OPERAND2_8COL;
 
 			code1_num_cmds = 2;
 			code1_cmd = (PIM_CMD *)malloc(sizeof(PIM_CMD) * code1_num_cmds);
-			code1_cmd[0] = PIM_CMD::READ_WEIGHT_1COL;
-			code1_cmd[1] = PIM_CMD::WRITE_OUTPUT_1COL;
+			code1_cmd[0] = PIM_CMD::READ_OPERAND2_1COL;
+			code1_cmd[1] = PIM_CMD::WRITE_OPERAND3_1COL;
 		}
 	}
 };

@@ -1,4 +1,4 @@
-#include "fpga_pim.h"
+#include "fpga_runtime.h"
 
 uint64_t pimExecution(uint32_t addr, uint32_t *data, int iswrite) {
 	printf("   fpga: %x\n", addr);

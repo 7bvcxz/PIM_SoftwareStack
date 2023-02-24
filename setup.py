@@ -11,7 +11,7 @@ pim_utils = CppExtension(
         "pim_func_sim/pim_func_sim.cc",
         "pim_func_sim/pim_unit.cc",
         "pim_func_sim/pim_utils.cc",
-        "../fpga_pim.c",
+        "../fpga_runtime.c",
     ]
 )
 

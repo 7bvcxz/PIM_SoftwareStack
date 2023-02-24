@@ -197,11 +197,11 @@ bool pim_add(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 				bool ret = GetFpgaAddr(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
 			SetFpgaAddr();
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
-			ExecuteKernel(in0, in1, pim_out, micro_kernel.code0_cmd[0], bank);
+			ExecuteKernel(in0, in1, pim_out, null_ptr, micro_kernel.code0_cmd[0], bank);
 #else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
+				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, null_ptr, micro_kernel.code0_cmd[k], bank);
 #endif
 			idx += WORD_SIZE * 8 * NUM_BANK;
 			if (DebugMode())
@@ -260,7 +260,7 @@ bool pim_mul(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *in1, uint8_
 				std::cout << " PIM_BLAS\t Code0 Start!\n";
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
+				bool ret = ExecuteKernel(in0 + idx, in1 + idx, pim_out + idx, null_ptr, micro_kernel.code0_cmd[k], bank);
 			idx += WORD_SIZE * 8 * NUM_BANK;
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code0 Finished!\n";
@@ -306,7 +306,7 @@ bool pim_relu(PIMKernel micro_kernel, int len, uint8_t *in0, uint8_t *out) {
 				std::cout << " PIM_BLAS\t Code0 Start!\n";
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-				bool ret = ExecuteKernel(in0 + idx, in0 + idx, pim_out + idx, micro_kernel.code0_cmd[k], bank);
+				bool ret = ExecuteKernel(in0 + idx, in0 + idx, pim_out + idx, null_ptr, micro_kernel.code0_cmd[k], bank);
 			idx += WORD_SIZE * 8 * NUM_BANK;
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code0 Finished!\n";
@@ -372,16 +372,16 @@ bool pim_bn1d(PIMKernel micro_kernel, int len_batch, int len_feature, uint8_t *i
 			}
 			SetFpgaAddr();
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
-			ExecuteKernel(pim_in, w_mul, pim_out, micro_kernel.code0_cmd[0], bank);
+			ExecuteKernel(pim_in, w_mul, pim_out, null_ptr, micro_kernel.code0_cmd[0], bank);
 #else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++) {
 				if (k <= 1)
 					bool ret = ExecuteKernel(pim_in + idx, w_mul + idx, pim_out + idx,
-											 micro_kernel.code0_cmd[k], bank);
+											 null_ptr, micro_kernel.code0_cmd[k], bank);
 				else
 					bool ret = ExecuteKernel(pim_in + idx, w_add + idx, pim_out + idx,
-											 micro_kernel.code0_cmd[k], bank);
+											 null_ptr, micro_kernel.code0_cmd[k], bank);
 			}
 #endif
 			idx += WORD_SIZE * 8 * NUM_BANK;
@@ -445,13 +445,13 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 				bool ret = GetFpgaAddr(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code0_cmd[k], bank);
 			SetFpgaAddr();
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
-			ExecuteKernel(in, pim_w, pim_out, micro_kernel.code0_cmd[0], bank); // 1 Trash Mem CMD
+			ExecuteKernel(in, pim_w, pim_out, null_ptr, micro_kernel.code0_cmd[0], bank); // 1 Trash Mem CMD
 #else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			// BM_cnt = BM_cnt + 1;  // >> KKM << 22.10.25 Just turn off for now. Needed for build
 
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code0_cmd[k], bank);
+				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, null_ptr, micro_kernel.code0_cmd[k], bank);
 #endif
 			w_idx += WORD_SIZE * 8 * NUM_BANK;
 			in_idx += UNIT_SIZE * 8;
@@ -471,7 +471,7 @@ bool pim_gemv(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 #else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code1_num_cmds; k++)
-				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code1_cmd[k], bank);
+				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, null_ptr, micro_kernel.code1_cmd[k], bank);
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code1 Finished!\n";
 #endif
@@ -537,14 +537,14 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 				bool ret = GetFpgaAddr(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code0_cmd[k], bank);
 			SetFpgaAddr();
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
-			ExecuteKernel(in, pim_w, pim_out, micro_kernel.code0_cmd[0], bank); // 1 Trash Mem CMD
+			ExecuteKernel(in, pim_w, pim_out, null_ptr, micro_kernel.code0_cmd[0], bank); // 1 Trash Mem CMD
 #else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			// BM_cnt = BM_cnt + 1;  // >> KKM << 22.10.25 Just turn off for now. Needed for build
 
 			for (int k = 0; k < micro_kernel.code0_num_cmds; k++)
-				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, micro_kernel.code0_cmd[k],
-										 bank);
+				bool ret = ExecuteKernel(in + in_idx, pim_w + w_idx, pim_out + out_idx, null_ptr, 
+										 micro_kernel.code0_cmd[k], bank);
 #endif
 			w_idx += WORD_SIZE * 8 * NUM_BANK;
 			in_idx += UNIT_SIZE * 8;
@@ -564,7 +564,8 @@ bool pim_lstm(PIMKernel micro_kernel, int len_in, int len_out, uint8_t *in, uint
 #else
 			WriteReg(PIM_REG::PIM_OP_MODE, null_ptr, WORD_SIZE);
 			for (int k = 0; k < micro_kernel.code1_num_cmds; k++)
-				bool ret = ExecuteKernel(in + in_idx, pim_b, pim_out + out_idx, micro_kernel.code1_cmd[k], bank);
+				bool ret = ExecuteKernel(in + in_idx, pim_b, pim_out + out_idx, null_ptr, micro_kernel.code1_cmd[k],
+										 bank);
 			if (DebugMode())
 				std::cout << " PIM_BLAS\t Code1 Finished!\n";
 #endif
